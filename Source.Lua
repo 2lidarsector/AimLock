@@ -35,7 +35,7 @@ local Config = {
     NoclipForceDisabled = false,
     AimbotRandomOffset = false, -- Enable/disable random offset
     AimbotOffsetMax = 0.5, -- Max offset variation in studs (slider range 0-2)
-    AimbotOffsetUpdateInterval = 100 -- Offset update interval in seconds
+    AimbotOffsetUpdateInterval = 100 -- Do not edit, offset update interval in seconds
 }
 -- Cache for player characters and ESP elements
 local playerCache = {}
