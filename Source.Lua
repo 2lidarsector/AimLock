@@ -4,7 +4,8 @@ local UserInputService = game:GetService("UserInputService")
 local Workspace = game:GetService("Workspace")
 local Camera = Workspace.CurrentCamera
 local LocalPlayer = Players.LocalPlayer
--- Configuration table
+-- Configuration table, you may edit this if youd like
+-- to have the same settings on inject
 local Config = {
     ESPEnabled = true,
     OutlineColor = Color3.fromRGB(255, 255, 255),
