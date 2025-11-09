@@ -86,7 +86,7 @@ local function createGUI()
         local MinimizeButton = Instance.new("TextButton")
         MinimizeButton.Size = UDim2.new(0, 30, 0, 30)
         MinimizeButton.Position = UDim2.new(1, -40, 0, 10)
-        MinimizeButton.Text = "-"
+        MinimizeButton.Text = "-" -- + or -
         MinimizeButton.BackgroundColor3 = Color3.fromRGB(70, 70, 70)
         MinimizeButton.TextColor3 = Color3.fromRGB(255, 255, 255)
         MinimizeButton.Font = Enum.Font.SourceSansBold
@@ -99,7 +99,7 @@ local function createGUI()
         local ToggleButton = Instance.new("TextButton")
         ToggleButton.Size = UDim2.new(0, 50, 0, 50)
         ToggleButton.Position = UDim2.new(0, 10, 0, 10)
-        ToggleButton.Text = ">"
+        ToggleButton.Text = ">" -- < or > 
         ToggleButton.BackgroundColor3 = Color3.fromRGB(70, 70, 70)
         ToggleButton.TextColor3 = Color3.fromRGB(255, 255, 255)
         ToggleButton.Font = Enum.Font.SourceSansBold
@@ -149,7 +149,7 @@ local function createGUI()
         local Title = Instance.new("TextLabel")
         Title.Size = UDim2.new(0, 190, 0, 30)
         Title.Position = UDim2.new(0, 10, 0, 10)
-        Title.Text = "ESP, Aimbot, Fly & Noclip V1.2.0"
+        Title.Text = "ESP, Aimbot, Fly & Noclip V1.2.2"
         Title.TextColor3 = Color3.fromRGB(255, 255, 255)
         Title.BackgroundTransparency = 1
         Title.Font = Enum.Font.SourceSansBold
@@ -200,7 +200,7 @@ local function createGUI()
             end)
             return controlsFrame
         end
-        -- ESP Section
+        -- ESP Section - or +
         local espControls = createSection("ESP Settings", true)
         -- ESP Toggle
         local ESPToggle = Instance.new("TextButton")
@@ -222,7 +222,7 @@ local function createGUI()
         -- ESP Keybind
         local ESPKeybind = Instance.new("TextButton")
         ESPKeybind.Size = UDim2.new(1, 0, 0, 30)
-        ESPKeybind.Text = "Set ESP Key: " .. Config.ESPKey.Name
+        ESPKeybind.Text = "Set ESP Key: " .. Config.ESPKey.Name -- Default E
         ESPKeybind.BackgroundColor3 = Color3.fromRGB(70, 70, 70)
         ESPKeybind.TextColor3 = Color3.fromRGB(255, 255, 255)
         ESPKeybind.Font = Enum.Font.SourceSans
