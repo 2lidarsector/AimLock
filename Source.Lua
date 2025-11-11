@@ -16,17 +16,6 @@ local Config = {
 	AimbotFOV = 100,
 	AimbotSpeed = 0.2,
 	AimbotTargets = {"Head", "UpperTorso"},-- {"Head", "HumanoidRootPart", "UpperTorso", "LowerTorso", "LeftUpperArm", "RightUpperArm", "LeftLowerArm", "RightLowerArm", "LeftHand", "RightHand", "LeftUpperLeg", "RightUpperLeg", "LeftLowerLeg", "RightLowerLeg", "LeftFoot", "RightFoot"}
-		for _, partName in ipairs(availableParts) do
-			local PartToggle = Instance.new("TextButton")
-			PartToggle.Size = UDim2.new(1, 0, 0, 30)
-			local isSelected = table.find(Config.AimbotTargets, partName) ~= nil
-			PartToggle.Text = partName .. ": " .. (isSelected and "ON" or "OFF")
-			PartToggle.BackgroundColor3 = Color3.fromRGB(70, 70, 70)
-			PartToggle.TextColor3 = Color3.fromRGB(255, 255, 255)
-			PartToggle.Font = Enum.Font.SourceSans
-			PartToggle.TextSize = 16
-			PartToggle.Parent = partsScrolling
-			local PartToggleCorner = Instance.new("UICorner")
 	AimbotKey = Enum.KeyCode.Q,
 	ESPKey = Enum.KeyCode.E,
 	AimbotTargetMode = "Closest Distance", -- "Any", "Highest HP", "Lowest HP", "Closest Distance"
