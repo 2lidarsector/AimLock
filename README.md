@@ -12,6 +12,9 @@ AimLock is code for a universal first person Roblox Lua Aimbot, ESP, Fly and Noc
   - Random Offset
 
 - Esp
+  - Name Esp
+  - Distance Esp
+  - Health Esp
 - Fly
 - Noclip
 - Speed Hack
