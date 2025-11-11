@@ -38,7 +38,13 @@ local Config = {
 	NoclipForceDisabled = false,
 	AimbotRandomOffset = false, -- Enable/disable random offset
 	AimbotOffsetMax = 0.5, -- Max offset variation in studs (slider range 0-2)
-	AimbotOffsetUpdateInterval = 100 -- Do not edit, offset update interval in seconds
+	AimbotOffsetUpdateInterval = 100, -- Do not edit, offset update interval in seconds
+	SpeedHackEnabled = false, -- New: Toggle for speed hack
+	SpeedHackValue = 16, -- New: Default walk speed, slider 16-100
+	SpeedHackKey = Enum.KeyCode.G, -- New: Key to toggle speed hack
+	SpeedHackForceDisabled = false, -- New: Force disable for speed hack
+	OutlineTransparency = 0.3, -- 0 (opaque) to 1 (transparent)
+	AimbotMaxDistance = 1000
 }
 -- Cache for player characters and ESP elements
 local playerCache = {}
@@ -587,6 +593,48 @@ local function createGUI()
 				DistanceTransparencyFill.Size = UDim2.new(sliderPos, 0, 1, 0)
 			end
 		end)
+		-- Outline Transparency Slider
+		local OutlineTransparencyLabel = Instance.new("TextLabel")
+		OutlineTransparencyLabel.Size = UDim2.new(1, 0, 0, 20)
+		OutlineTransparencyLabel.Text = "Outline Transparency: " .. string.format("%.2f", Config.OutlineTransparency)
+		OutlineTransparencyLabel.BackgroundTransparency = 1
+		OutlineTransparencyLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+		OutlineTransparencyLabel.Font = Enum.Font.SourceSans
+		OutlineTransparencyLabel.TextSize = 14
+		OutlineTransparencyLabel.Parent = espControls
+		local OutlineTransparencySlider = Instance.new("Frame")
+		OutlineTransparencySlider.Size = UDim2.new(1, 0, 0, 10)
+		OutlineTransparencySlider.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
+		OutlineTransparencySlider.Parent = espControls
+		local OutlineTransparencySliderCorner = Instance.new("UICorner")
+		OutlineTransparencySliderCorner.CornerRadius = UDim.new(0, 5)
+		OutlineTransparencySliderCorner.Parent = OutlineTransparencySlider
+		local OutlineTransparencyFill = Instance.new("Frame")
+		OutlineTransparencyFill.Size = UDim2.new(Config.OutlineTransparency, 0, 1, 0)
+		OutlineTransparencyFill.BackgroundColor3 = Color3.fromRGB(0, 120, 255)
+		OutlineTransparencyFill.Parent = OutlineTransparencySlider
+		local OutlineTransparencyFillCorner = Instance.new("UICorner")
+		OutlineTransparencyFillCorner.CornerRadius = UDim.new(0, 5)
+		OutlineTransparencyFillCorner.Parent = OutlineTransparencyFill
+		local draggingOutlineTransparency
+		OutlineTransparencySlider.InputBegan:Connect(function(input)
+			if input.UserInputType == Enum.UserInputType.MouseButton1 then
+				draggingOutlineTransparency = true
+			end
+		end)
+		OutlineTransparencySlider.InputEnded:Connect(function(input)
+			if input.UserInputType == Enum.UserInputType.MouseButton1 then
+				draggingOutlineTransparency = false
+			end
+		end)
+		UserInputService.InputChanged:Connect(function(input)
+			if input.UserInputType == Enum.UserInputType.MouseMovement and draggingOutlineTransparency then
+				local sliderPos = math.clamp((input.Position.X - OutlineTransparencySlider.AbsolutePosition.X) / OutlineTransparencySlider.AbsoluteSize.X, 0, 1)
+				Config.OutlineTransparency = sliderPos
+				OutlineTransparencyLabel.Text = "Outline Transparency: " .. string.format("%.2f", Config.OutlineTransparency)
+				OutlineTransparencyFill.Size = UDim2.new(sliderPos, 0, 1, 0)
+			end
+		end)
 		-- Aimbot Section
 		local aimbotControls = createSection("Aimbot Settings", true)
 		-- Aimbot Toggle
@@ -864,6 +912,48 @@ local function createGUI()
 			Config.WallCheckEnabled = not Config.WallCheckEnabled
 			WallCheckToggle.Text = "Wall Check: " .. (Config.WallCheckEnabled and "ON" or "OFF")
 		end)
+		-- Aimbot Max Distance Slider
+		local AimbotDistanceLabel = Instance.new("TextLabel")
+		AimbotDistanceLabel.Size = UDim2.new(1, 0, 0, 20)
+		AimbotDistanceLabel.Text = "Aimbot Max Distance: " .. Config.AimbotMaxDistance
+		AimbotDistanceLabel.BackgroundTransparency = 1
+		AimbotDistanceLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+		AimbotDistanceLabel.Font = Enum.Font.SourceSans
+		AimbotDistanceLabel.TextSize = 14
+		AimbotDistanceLabel.Parent = aimbotControls
+		local AimbotDistanceSlider = Instance.new("Frame")
+		AimbotDistanceSlider.Size = UDim2.new(1, 0, 0, 10)
+		AimbotDistanceSlider.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
+		AimbotDistanceSlider.Parent = aimbotControls
+		local AimbotDistanceSliderCorner = Instance.new("UICorner")
+		AimbotDistanceSliderCorner.CornerRadius = UDim.new(0, 5)
+		AimbotDistanceSliderCorner.Parent = AimbotDistanceSlider
+		local AimbotDistanceFill = Instance.new("Frame")
+		AimbotDistanceFill.Size = UDim2.new((Config.AimbotMaxDistance - 100) / 1900, 0, 1, 0)
+		AimbotDistanceFill.BackgroundColor3 = Color3.fromRGB(0, 120, 255)
+		AimbotDistanceFill.Parent = AimbotDistanceSlider
+		local AimbotDistanceFillCorner = Instance.new("UICorner")
+		AimbotDistanceFillCorner.CornerRadius = UDim.new(0, 5)
+		AimbotDistanceFillCorner.Parent = AimbotDistanceFill
+		local draggingAimbotDistance
+		AimbotDistanceSlider.InputBegan:Connect(function(input)
+			if input.UserInputType == Enum.UserInputType.MouseButton1 then
+				draggingAimbotDistance = true
+			end
+		end)
+		AimbotDistanceSlider.InputEnded:Connect(function(input)
+			if input.UserInputType == Enum.UserInputType.MouseButton1 then
+				draggingAimbotDistance = false
+			end
+		end)
+		UserInputService.InputChanged:Connect(function(input)
+			if input.UserInputType == Enum.UserInputType.MouseMovement and draggingAimbotDistance then
+				local sliderPos = math.clamp((input.Position.X - AimbotDistanceSlider.AbsolutePosition.X) / AimbotDistanceSlider.AbsoluteSize.X, 0, 1)
+				Config.AimbotMaxDistance = math.floor(sliderPos * 1900) + 100
+				AimbotDistanceLabel.Text = "Aimbot Max Distance: " .. Config.AimbotMaxDistance
+				AimbotDistanceFill.Size = UDim2.new(sliderPos, 0, 1, 0)
+			end
+		end)
 		-- Random Offset Toggle
 		local RandomOffsetToggle = Instance.new("TextButton")
 		RandomOffsetToggle.Size = UDim2.new(1, 0, 0, 30)
@@ -1129,6 +1219,128 @@ local function createGUI()
 				end
 			end
 		end)
+		-- New: Speed Hack Toggle
+		local SpeedHackToggle = Instance.new("TextButton")
+		SpeedHackToggle.Name = "SpeedHackToggle"
+		SpeedHackToggle.Size = UDim2.new(1, 0, 0, 30)
+		SpeedHackToggle.Text = "Speed Hack: OFF [" .. Config.SpeedHackKey.Name .. "]"
+		SpeedHackToggle.BackgroundColor3 = Color3.fromRGB(70, 70, 70)
+		SpeedHackToggle.TextColor3 = Color3.fromRGB(255, 255, 255)
+		SpeedHackToggle.Font = Enum.Font.SourceSans
+		SpeedHackToggle.TextSize = 16
+		SpeedHackToggle.Parent = movementControls
+		local SpeedHackToggleCorner = Instance.new("UICorner")
+		SpeedHackToggleCorner.CornerRadius = UDim.new(0, 5)
+		SpeedHackToggleCorner.Parent = SpeedHackToggle
+		SpeedHackToggle.MouseButton1Click:Connect(function()
+			if not Config.SpeedHackForceDisabled then
+				Config.SpeedHackEnabled = not Config.SpeedHackEnabled
+				SpeedHackToggle.Text = "Speed Hack: " .. (Config.SpeedHackEnabled and "ON" or "OFF") .. " [" .. Config.SpeedHackKey.Name .. "]"
+				local humanoid = LocalPlayer.Character and LocalPlayer.Character:FindFirstChildOfClass("Humanoid")
+				if humanoid then
+					humanoid.WalkSpeed = Config.SpeedHackEnabled and Config.SpeedHackValue or 16
+				end
+			end
+		end)
+		-- Speed Hack Keybind
+		local SpeedHackKeybind = Instance.new("TextButton")
+		SpeedHackKeybind.Size = UDim2.new(1, 0, 0, 30)
+		SpeedHackKeybind.Text = "Set Speed Hack Key: " .. Config.SpeedHackKey.Name
+		SpeedHackKeybind.BackgroundColor3 = Color3.fromRGB(70, 70, 70)
+		SpeedHackKeybind.TextColor3 = Color3.fromRGB(255, 255, 255)
+		SpeedHackKeybind.Font = Enum.Font.SourceSans
+		SpeedHackKeybind.TextSize = 16
+		SpeedHackKeybind.Parent = movementControls
+		local SpeedHackKeybindCorner = Instance.new("UICorner")
+		SpeedHackKeybindCorner.CornerRadius = UDim.new(0, 5)
+		SpeedHackKeybindCorner.Parent = SpeedHackKeybind
+		SpeedHackKeybind.MouseButton1Click:Connect(function()
+			SpeedHackKeybind.Text = "Set Speed Hack Key: Press a key..."
+			local input = UserInputService.InputBegan:Wait()
+			if input.KeyCode ~= Enum.KeyCode.Unknown then
+				Config.SpeedHackKey = input.KeyCode
+				SpeedHackKeybind.Text = "Set Speed Hack Key: " .. Config.SpeedHackKey.Name
+				SpeedHackToggle.Text = "Speed Hack: " .. (Config.SpeedHackEnabled and "ON" or "OFF") .. " [" .. Config.SpeedHackKey.Name .. "]"
+			else
+				SpeedHackKeybind.Text = "Set Speed Hack Key: " .. Config.SpeedHackKey.Name
+			end
+		end)
+		-- Speed Hack Value Slider
+		local SpeedHackValueLabel = Instance.new("TextLabel")
+		SpeedHackValueLabel.Size = UDim2.new(1, 0, 0, 20)
+		SpeedHackValueLabel.Text = "Speed Hack Value: " .. Config.SpeedHackValue
+		SpeedHackValueLabel.BackgroundTransparency = 1
+		SpeedHackValueLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+		SpeedHackValueLabel.Font = Enum.Font.SourceSans
+		SpeedHackValueLabel.TextSize = 14
+		SpeedHackValueLabel.Parent = movementControls
+		local SpeedHackValueSlider = Instance.new("Frame")
+		SpeedHackValueSlider.Size = UDim2.new(1, 0, 0, 10)
+		SpeedHackValueSlider.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
+		SpeedHackValueSlider.Parent = movementControls
+		local SpeedHackValueSliderCorner = Instance.new("UICorner")
+		SpeedHackValueSliderCorner.CornerRadius = UDim.new(0, 5)
+		SpeedHackValueSliderCorner.Parent = SpeedHackValueSlider
+		local SpeedHackValueFill = Instance.new("Frame")
+		SpeedHackValueFill.Size = UDim2.new((Config.SpeedHackValue - 16) / 84, 0, 1, 0)
+		SpeedHackValueFill.BackgroundColor3 = Color3.fromRGB(0, 120, 255)
+		SpeedHackValueFill.Parent = SpeedHackValueSlider
+		local SpeedHackValueFillCorner = Instance.new("UICorner")
+		SpeedHackValueFillCorner.CornerRadius = UDim.new(0, 5)
+		SpeedHackValueFillCorner.Parent = SpeedHackValueFill
+		local draggingSpeedHackValue
+		SpeedHackValueSlider.InputBegan:Connect(function(input)
+			if input.UserInputType == Enum.UserInputType.MouseButton1 then
+				draggingSpeedHackValue = true
+			end
+		end)
+		SpeedHackValueSlider.InputEnded:Connect(function(input)
+			if input.UserInputType == Enum.UserInputType.MouseButton1 then
+				draggingSpeedHackValue = false
+			end
+		end)
+		UserInputService.InputChanged:Connect(function(input)
+			if input.UserInputType == Enum.UserInputType.MouseMovement and draggingSpeedHackValue then
+				local sliderPos = math.clamp((input.Position.X - SpeedHackValueSlider.AbsolutePosition.X) / SpeedHackValueSlider.AbsoluteSize.X, 0, 1)
+				Config.SpeedHackValue = math.floor(sliderPos * 84) + 16
+				SpeedHackValueLabel.Text = "Speed Hack Value: " .. Config.SpeedHackValue
+				SpeedHackValueFill.Size = UDim2.new(sliderPos, 0, 1, 0)
+				local humanoid = LocalPlayer.Character and LocalPlayer.Character:FindFirstChildOfClass("Humanoid")
+				if humanoid and Config.SpeedHackEnabled then
+					humanoid.WalkSpeed = Config.SpeedHackValue
+				end
+			end
+		end)
+		-- New: Speed Hack Force Disable Toggle
+		local SpeedHackForceDisableToggle = Instance.new("TextButton")
+		SpeedHackForceDisableToggle.Name = "SpeedHackForceDisableToggle"
+		SpeedHackForceDisableToggle.Size = UDim2.new(1, 0, 0, 30)
+		SpeedHackForceDisableToggle.Text = "Force Disable Speed Hack: OFF"
+		SpeedHackForceDisableToggle.BackgroundColor3 = Color3.fromRGB(70, 70, 70)
+		SpeedHackForceDisableToggle.TextColor3 = Color3.fromRGB(255, 255, 255)
+		SpeedHackForceDisableToggle.Font = Enum.Font.SourceSans
+		SpeedHackForceDisableToggle.TextSize = 16
+		SpeedHackForceDisableToggle.Parent = movementControls
+		local SpeedHackForceDisableToggleCorner = Instance.new("UICorner")
+		SpeedHackForceDisableToggleCorner.CornerRadius = UDim.new(0, 5)
+		SpeedHackForceDisableToggleCorner.Parent = SpeedHackForceDisableToggle
+		SpeedHackForceDisableToggle.MouseButton1Click:Connect(function()
+			Config.SpeedHackForceDisabled = not Config.SpeedHackForceDisabled
+			SpeedHackForceDisableToggle.Text = "Force Disable Speed Hack: " .. (Config.SpeedHackForceDisabled and "ON" or "OFF")
+			if Config.SpeedHackForceDisabled then
+				if Config.SpeedHackEnabled then
+					Config.SpeedHackEnabled = false
+					local SpeedHackToggle = movementControls:FindFirstChild("SpeedHackToggle")
+					if SpeedHackToggle then
+						SpeedHackToggle.Text = "Speed Hack: OFF [" .. Config.SpeedHackKey.Name .. "]"
+					end
+				end
+				local humanoid = LocalPlayer.Character and LocalPlayer.Character:FindFirstChildOfClass("Humanoid")
+				if humanoid then
+					humanoid.WalkSpeed = 16
+				end
+			end
+		end)
 		print("GUI creation completed")
 	end)
 	if not success then
@@ -1209,7 +1421,18 @@ local function createESP(player)
 	local localCharacter = LocalPlayer.Character
 	local localHRP = localCharacter and localCharacter:FindFirstChild("HumanoidRootPart")
 	local distance = localHRP and (localHRP.Position - humanoidRootPart.Position).Magnitude or math.huge
-	if distance > Config.MaxDistance then return end
+	if distance > Config.MaxDistance then
+		if cache.highlight then
+			cache.highlight:Destroy()
+			cache.highlight = nil
+		end
+		if cache.billboard then
+			cache.billboard:Destroy()
+			cache.billboard = nil
+		end
+		cache.character = nil
+		return
+	end
 	local highlight = cache.highlight
 	if not highlight then
 		highlight = Instance.new("Highlight")
@@ -1217,11 +1440,12 @@ local function createESP(player)
 		highlight.Adornee = character
 		highlight.FillTransparency = 1
 		highlight.OutlineColor = player.Team and player.Team.TeamColor.Color or Config.OutlineColor
-		highlight.OutlineTransparency = 0.3
+		highlight.OutlineTransparency = Config.OutlineTransparency
 		highlight.Parent = character
 		cache.highlight = highlight
 	else
 		highlight.OutlineColor = player.Team and player.Team.TeamColor.Color or Config.OutlineColor
+		highlight.OutlineTransparency = Config.OutlineTransparency
 		highlight.Adornee = character
 	end
 	if not (Config.ShowNameESP or Config.ShowHealthESP or Config.ShowDistanceESP) then
@@ -1249,7 +1473,7 @@ local function createESP(player)
 		nameLabel.Text = player.Name
 		nameLabel.TextColor3 = player.Team and player.Team.TeamColor.Color or Color3.fromRGB(255, 255, 255)
 		nameLabel.TextTransparency = Config.NameTransparency
-		nameLabel.TextStrokeTransparency = Config.NameTransparency  -- Fixed: No clamp, full control
+		nameLabel.TextStrokeTransparency = Config.NameTransparency -- Fixed: No clamp, full control
 		nameLabel.TextScaled = false -- Fixed: Disable scaling to allow manual size control
 		nameLabel.Font = Enum.Font.SourceSans
 		nameLabel.TextSize = Config.NameSize
@@ -1300,7 +1524,7 @@ local function createESP(player)
 		nameLabel.TextSize = Config.NameSize
 		nameLabel.TextColor3 = player.Team and player.Team.TeamColor.Color or Color3.fromRGB(255, 255, 255)
 		nameLabel.TextTransparency = Config.NameTransparency
-		nameLabel.TextStrokeTransparency = Config.NameTransparency  -- Fixed
+		nameLabel.TextStrokeTransparency = Config.NameTransparency -- Fixed
 		nameLabel.Visible = Config.ShowNameESP
 	end
 	if healthBarFrame then
@@ -1366,6 +1590,12 @@ local function getBestPartAndDist(player)
 	local humanoid = character:FindFirstChildOfClass("Humanoid")
 	if not humanoid or humanoid.Health <= 0 then return nil, math.huge end
 	if Config.AimbotTeamCheck and LocalPlayer.Team and player.Team == LocalPlayer.Team then return nil, math.huge end
+	local localCharacter = LocalPlayer.Character
+	local localHRP = localCharacter and localCharacter:FindFirstChild("HumanoidRootPart")
+	local targetHRP = character:FindFirstChild("HumanoidRootPart")
+	if not localHRP or not targetHRP then return nil, math.huge end
+	local dist3D = (localHRP.Position - targetHRP.Position).Magnitude
+	if dist3D > Config.AimbotMaxDistance then return nil, math.huge end
 	local minDist = math.huge
 	local bestPart = nil
 	local screenCenter = Vector2.new(Camera.ViewportSize.X / 2, Camera.ViewportSize.Y / 2)
@@ -1478,6 +1708,18 @@ UserInputService.InputBegan:Connect(function(input)
 				end
 			end
 		end
+	elseif input.KeyCode == Config.SpeedHackKey then
+		if not Config.SpeedHackForceDisabled then
+			Config.SpeedHackEnabled = not Config.SpeedHackEnabled
+			local SpeedHackToggle = LocalPlayer.PlayerGui:FindFirstChild("ESP_Aimbot_Config") and LocalPlayer.PlayerGui.ESP_Aimbot_Config.MainFrame.ScrollingFrame:FindFirstChild("SpeedHackToggle", true)
+			if SpeedHackToggle then
+				SpeedHackToggle.Text = "Speed Hack: " .. (Config.SpeedHackEnabled and "ON" or "OFF") .. " [" .. Config.SpeedHackKey.Name .. "]"
+			end
+			local humanoid = LocalPlayer.Character and LocalPlayer.Character:FindFirstChildOfClass("Humanoid")
+			if humanoid then
+				humanoid.WalkSpeed = Config.SpeedHackEnabled and Config.SpeedHackValue or 16
+			end
+		end
 	end
 end)
 UserInputService.InputEnded:Connect(function(input)
@@ -1563,6 +1805,10 @@ RunService.RenderStepped:Connect(function(deltaTime)
 		if humanoid then
 			humanoid.PlatformStand = false
 		end
+	end
+	-- Speed Hack Logic (applied every frame if enabled)
+	if humanoid and Config.SpeedHackEnabled and not Config.SpeedHackForceDisabled then
+		humanoid.WalkSpeed = Config.SpeedHackValue
 	end
 	updateFOVCircle()
 end)
