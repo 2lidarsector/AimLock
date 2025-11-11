@@ -4,7 +4,7 @@ A rookie made Aimbot, use at your own risk
         
 AimLock is code for a universal first person Roblox Lua Aimbot, ESP, Fly and Noclip cheat.
 
-# Some Features
+## Some Features
 - Aimbot
 - Esp
 - Fly
