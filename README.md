@@ -6,6 +6,11 @@ AimLock is code for a universal first person Roblox Lua Aimbot, ESP, Fly and Noc
 
 ### Some Features
 - Aimbot
+* Fov size, transparency
+* Smoothening
+* Team Check, Wall Check
+* Random Offset
+
 - Esp
 - Fly
 - Noclip
