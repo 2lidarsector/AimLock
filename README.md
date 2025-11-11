@@ -23,4 +23,4 @@ AimLock is code for a universal first person Roblox Lua Aimbot, ESP, Fly and Noc
 
 
 # Where can I view the code?
-At [source.lua](https://github.com/2lidarsector/AimLock/blob/main/Source.Lua)
+At [source.lua](https://github.com/2lidarsector/AimLock/blob/main/Source.Lua) for the official release. Other types of releases are also available.
