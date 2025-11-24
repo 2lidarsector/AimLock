@@ -1925,11 +1925,15 @@ local function initialize()
 			end
 		end
 		createGUI()
+		print("GUI Created")
+		wait(0.5) -- reduce lag on run)
 		createFOVCircle()
+		print("FOV Circle Created...")
+		print("...") 
 		print("Initialization completed")
 	end)
 	if not success then
-		warn("Initialization failed: " .. tostring(errorMsg))
+		warn("Initialization failed, error detected: " .. tostring(errorMsg))
 	end
 end
 initialize()
