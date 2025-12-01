@@ -57,7 +57,7 @@ local lastUpdateTime = 0
 -- Flags and connections
 local espUpdateRunning = true
 local connections = {}
--- Create GUI (CSGO Cheat Style)
+-- Create GUI (New Style)
 local function createGUI()
 	local success, errorMsg = pcall(function()
 		-- Ensure PlayerGui exists
@@ -107,7 +107,7 @@ local function createGUI()
 		local Title = Instance.new("TextLabel")
 		Title.Size = UDim2.new(1, -60, 1, 0)
 		Title.Position = UDim2.new(0, 10, 0, 0)
-		Title.Text = "CSGO Style Cheat Menu V1.2.2"
+		Title.Text = "UniversalCheat V2.0.1beta"
 		Title.TextColor3 = Color3.fromRGB(255, 255, 255)
 		Title.BackgroundTransparency = 1
 		Title.Font = Enum.Font.GothamBold
