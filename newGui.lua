@@ -107,7 +107,7 @@ local function createGUI()
 		local Title = Instance.new("TextLabel")
 		Title.Size = UDim2.new(1, -60, 1, 0)
 		Title.Position = UDim2.new(0, 10, 0, 0)
-		Title.Text = "UniversalCheat V2.0.1beta"
+		Title.Text = "NewGui v1.5.0"
 		Title.TextColor3 = Color3.fromRGB(255, 255, 255)
 		Title.BackgroundTransparency = 1
 		Title.Font = Enum.Font.GothamBold
