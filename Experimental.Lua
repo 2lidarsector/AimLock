@@ -5,7 +5,7 @@ local Workspace = game:GetService("Workspace")
 local Camera = Workspace.CurrentCamera
 local LocalPlayer = Players.LocalPlayer
 
--- Configuration (unchanged)
+-- Configuration
 local Config = {
     ESPEnabled = true,
     OutlineColor = Color3.fromRGB(255, 255, 255),
