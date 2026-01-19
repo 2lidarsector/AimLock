@@ -19,7 +19,11 @@ AimLock is code for a universal first person Roblox Lua Aimbot, ESP, Fly and Noc
 - Noclip
 - Speed Hack
 
-
+### Planned Features
+- Some type of legit aimbot
+- Visibility detection for esp
+  - ESP will change color will have an indicator that
+  - the player is shootable, might require using a different way for drawing esp
 
 
 # Where can I view the code?
