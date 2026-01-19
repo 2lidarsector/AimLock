@@ -22,8 +22,22 @@ AimLock is code for a universal first person Roblox Lua Aimbot, ESP, Fly and Noc
 ### Planned Features
 - Some type of legit aimbot
 - Visibility detection for esp
-  - ESP will change color will have an indicator that
-  - the player is shootable, might require using a different way for drawing esp
+  - ESP will change color will have an indicator that the player is shootable, might require using a different way for drawing ESP
+- Change how SpeedHack works
+  - Make it so the SpeedHack had an added speed ontop of the speed the game wants you to have vs just having a certian speed override until turned off
+- Customization
+- Panic Button/System
+- Proper CFG system
+  - .json?
+- Player warning
+  - Detects if a player is in a game and warns you (e.g admins, good players)
+- Fix LAG/Remove unnecessary code
+- UI Change?
+  - Probably never, as its not needed
+- Time of Day changer
+- Safe Cheats Only Mode
+- Whitelist 
+  - e.g dont target (aimbot lock) player22 or dont target friends
 
 
 # Where can I view the code?
