@@ -4,6 +4,8 @@ local UserInputService = game:GetService("UserInputService")
 local Workspace = game:GetService("Workspace")
 local Camera = Workspace.CurrentCamera
 local LocalPlayer = Players.LocalPlayer
+local Lighting = game:GetService("Lighting") -- Added for TimeOfDay control
+local originalTimeOfDay = Lighting.TimeOfDay -- Store the original server TimeOfDay
 -- Configuration table, you may edit this if youd like
 -- to have the same settings on inject
 local Config = {
@@ -22,11 +24,11 @@ local Config = {
 	AimbotTeamCheck = true,
 	ShowNameESP = true,
 	ShowHealthESP = true,
-	ShowDistanceESP = true, -- New: Toggle for distance ESP
+	ShowDistanceESP = true, --  : Toggle for distance ESP
 	HealthBarHeight = 5, -- 1 to 10
 	HealthBarTransparency = 0, -- 0 (opaque) to 1 (transparent)
-	DistanceSize = 14, -- New: Size for distance text
-	DistanceTransparency = 0, -- New: Transparency for distance text
+	DistanceSize = 14, --  : Size for distance text
+	DistanceTransparency = 0, --  : Transparency for distance text
 	FOVCircleTransparency = 0.5, -- 0 (opaque) to 1 (transparent)
 	WallCheckEnabled = true, -- Toggle for wall check
 	FlyEnabled = false,
@@ -39,12 +41,17 @@ local Config = {
 	AimbotRandomOffset = false, -- Enable/disable random offset
 	AimbotOffsetMax = 0.5, -- Max offset variation in studs (slider range 0-2)
 	AimbotOffsetUpdateInterval = 100, -- Do not edit, offset update interval in seconds
-	SpeedHackEnabled = false, -- New: Toggle for speed hack
-	SpeedHackValue = 16, -- New: Default walk speed, slider 16-100
-	SpeedHackKey = Enum.KeyCode.G, -- New: Key to toggle speed hack
-	SpeedHackForceDisabled = false, -- New: Force disable for speed hack
+	SpeedHackEnabled = false, --  : Toggle for speed hack
+	SpeedHackValue = 16, --  : Default walk speed, slider 16-100
+	SpeedHackKey = Enum.KeyCode.G, --  : Key to toggle speed hack
+	SpeedHackForceDisabled = false, --  : Force disable for speed hack
 	OutlineTransparency = 0.3, -- 0 (opaque) to 1 (transparent)
-	AimbotMaxDistance = 1000
+	AimbotMaxDistance = 1000,
+	TimeOfDayEnabled = true, --  : Toggle for TimeOfDay cheat
+	TimeOfDayMinutes = 720, --  : Default to 12:00 (720 minutes), range 0-1440 (float for smoothness)
+	InfiniteJumpEnabled = false, --  : Toggle for infinite jump
+	InfiniteJumpKey = Enum.KeyCode.Space, --  : Key for jumping (default Space)
+	InfiniteJumpForceDisabled = false --  : Force disable for infinite jump
 }
 -- Cache for player characters and ESP elements
 local playerCache = {}
@@ -1219,7 +1226,7 @@ local function createGUI()
 				end
 			end
 		end)
-		-- New: Speed Hack Toggle
+		-- Speed Hack Toggle
 		local SpeedHackToggle = Instance.new("TextButton")
 		SpeedHackToggle.Name = "SpeedHackToggle"
 		SpeedHackToggle.Size = UDim2.new(1, 0, 0, 30)
@@ -1311,7 +1318,7 @@ local function createGUI()
 				end
 			end
 		end)
-		-- New: Speed Hack Force Disable Toggle
+		-- Speed Hack Force Disable Toggle
 		local SpeedHackForceDisableToggle = Instance.new("TextButton")
 		SpeedHackForceDisableToggle.Name = "SpeedHackForceDisableToggle"
 		SpeedHackForceDisableToggle.Size = UDim2.new(1, 0, 0, 30)
@@ -1338,6 +1345,158 @@ local function createGUI()
 				local humanoid = LocalPlayer.Character and LocalPlayer.Character:FindFirstChildOfClass("Humanoid")
 				if humanoid then
 					humanoid.WalkSpeed = 16
+				end
+			end
+		end)
+		-- Infinite Jump Toggle
+		local InfiniteJumpToggle = Instance.new("TextButton")
+		InfiniteJumpToggle.Name = "InfiniteJumpToggle"
+		InfiniteJumpToggle.Size = UDim2.new(1, 0, 0, 30)
+		InfiniteJumpToggle.Text = "Infinite Jump: OFF [" .. Config.InfiniteJumpKey.Name .. "]"
+		InfiniteJumpToggle.BackgroundColor3 = Color3.fromRGB(70, 70, 70)
+		InfiniteJumpToggle.TextColor3 = Color3.fromRGB(255, 255, 255)
+		InfiniteJumpToggle.Font = Enum.Font.SourceSans
+		InfiniteJumpToggle.TextSize = 16
+		InfiniteJumpToggle.Parent = movementControls
+		local InfiniteJumpToggleCorner = Instance.new("UICorner")
+		InfiniteJumpToggleCorner.CornerRadius = UDim.new(0, 5)
+		InfiniteJumpToggleCorner.Parent = InfiniteJumpToggle
+		InfiniteJumpToggle.MouseButton1Click:Connect(function()
+			if not Config.InfiniteJumpForceDisabled then
+				Config.InfiniteJumpEnabled = not Config.InfiniteJumpEnabled
+				InfiniteJumpToggle.Text = "Infinite Jump: " .. (Config.InfiniteJumpEnabled and "ON" or "OFF") .. " [" .. Config.InfiniteJumpKey.Name .. "]"
+			end
+		end)
+		-- Infinite Jump Keybind
+		local InfiniteJumpKeybind = Instance.new("TextButton")
+		InfiniteJumpKeybind.Size = UDim2.new(1, 0, 0, 30)
+		InfiniteJumpKeybind.Text = "Set Infinite Jump Key: " .. Config.InfiniteJumpKey.Name
+		InfiniteJumpKeybind.BackgroundColor3 = Color3.fromRGB(70, 70, 70)
+		InfiniteJumpKeybind.TextColor3 = Color3.fromRGB(255, 255, 255)
+		InfiniteJumpKeybind.Font = Enum.Font.SourceSans
+		InfiniteJumpKeybind.TextSize = 16
+		InfiniteJumpKeybind.Parent = movementControls
+		local InfiniteJumpKeybindCorner = Instance.new("UICorner")
+		InfiniteJumpKeybindCorner.CornerRadius = UDim.new(0, 5)
+		InfiniteJumpKeybindCorner.Parent = InfiniteJumpKeybind
+		InfiniteJumpKeybind.MouseButton1Click:Connect(function()
+			InfiniteJumpKeybind.Text = "Set Infinite Jump Key: Press a key..."
+			local input = UserInputService.InputBegan:Wait()
+			if input.KeyCode ~= Enum.KeyCode.Unknown then
+				Config.InfiniteJumpKey = input.KeyCode
+				InfiniteJumpKeybind.Text = "Set Infinite Jump Key: " .. Config.InfiniteJumpKey.Name
+				InfiniteJumpToggle.Text = "Infinite Jump: " .. (Config.InfiniteJumpEnabled and "ON" or "OFF") .. " [" .. Config.InfiniteJumpKey.Name .. "]"
+			else
+				InfiniteJumpKeybind.Text = "Set Infinite Jump Key: " .. Config.InfiniteJumpKey.Name
+			end
+		end)
+		-- Infinite Jump Force Disable Toggle
+		local InfiniteJumpForceDisableToggle = Instance.new("TextButton")
+		InfiniteJumpForceDisableToggle.Name = "InfiniteJumpForceDisableToggle"
+		InfiniteJumpForceDisableToggle.Size = UDim2.new(1, 0, 0, 30)
+		InfiniteJumpForceDisableToggle.Text = "Force Disable Infinite Jump: OFF"
+		InfiniteJumpForceDisableToggle.BackgroundColor3 = Color3.fromRGB(70, 70, 70)
+		InfiniteJumpForceDisableToggle.TextColor3 = Color3.fromRGB(255, 255, 255)
+		InfiniteJumpForceDisableToggle.Font = Enum.Font.SourceSans
+		InfiniteJumpForceDisableToggle.TextSize = 16
+		InfiniteJumpForceDisableToggle.Parent = movementControls
+		local InfiniteJumpForceDisableToggleCorner = Instance.new("UICorner")
+		InfiniteJumpForceDisableToggleCorner.CornerRadius = UDim.new(0, 5)
+		InfiniteJumpForceDisableToggleCorner.Parent = InfiniteJumpForceDisableToggle
+		InfiniteJumpForceDisableToggle.MouseButton1Click:Connect(function()
+			Config.InfiniteJumpForceDisabled = not Config.InfiniteJumpForceDisabled
+			InfiniteJumpForceDisableToggle.Text = "Force Disable Infinite Jump: " .. (Config.InfiniteJumpForceDisabled and "ON" or "OFF")
+			if Config.InfiniteJumpForceDisabled then
+				if Config.InfiniteJumpEnabled then
+					Config.InfiniteJumpEnabled = false
+					local InfiniteJumpToggle = movementControls:FindFirstChild("InfiniteJumpToggle")
+					if InfiniteJumpToggle then
+						InfiniteJumpToggle.Text = "Infinite Jump: OFF [" .. Config.InfiniteJumpKey.Name .. "]"
+					end
+				end
+				local humanoid = LocalPlayer.Character and LocalPlayer.Character:FindFirstChildOfClass("Humanoid")
+				if humanoid then
+					humanoid:ChangeState(Enum.HumanoidStateType.Freefall) -- Reset state if needed
+				end
+			end
+		end)
+		-- Environment Section
+		local environmentControls = createSection("Environment Settings", true)
+		-- Time of Day Toggle
+		local TimeOfDayToggle = Instance.new("TextButton")
+		TimeOfDayToggle.Size = UDim2.new(1, 0, 0, 30)
+		TimeOfDayToggle.Text = "Time of Day Cheat: " .. (Config.TimeOfDayEnabled and "ON" or "OFF")
+		TimeOfDayToggle.BackgroundColor3 = Color3.fromRGB(70, 70, 70)
+		TimeOfDayToggle.TextColor3 = Color3.fromRGB(255, 255, 255)
+		TimeOfDayToggle.Font = Enum.Font.SourceSans
+		TimeOfDayToggle.TextSize = 16
+		TimeOfDayToggle.Parent = environmentControls
+		local TimeOfDayToggleCorner = Instance.new("UICorner")
+		TimeOfDayToggleCorner.CornerRadius = UDim.new(0, 5)
+		TimeOfDayToggleCorner.Parent = TimeOfDayToggle
+		TimeOfDayToggle.MouseButton1Click:Connect(function()
+			Config.TimeOfDayEnabled = not Config.TimeOfDayEnabled
+			TimeOfDayToggle.Text = "Time of Day Cheat: " .. (Config.TimeOfDayEnabled and "ON" or "OFF")
+			if not Config.TimeOfDayEnabled then
+				Lighting.TimeOfDay = originalTimeOfDay
+			else
+				local hours = math.floor(Config.TimeOfDayMinutes / 60) % 24
+				local remaining_minutes = Config.TimeOfDayMinutes % 60
+				local minutes = math.floor(remaining_minutes)
+				local seconds = math.floor((remaining_minutes - minutes) * 60)
+				Lighting.TimeOfDay = string.format("%02d:%02d:%02d", hours, minutes, seconds)
+			end
+		end)
+		-- Time of Day Slider (Smoothed like Aimbot Speed)
+		local TimeOfDayLabel = Instance.new("TextLabel")
+		TimeOfDayLabel.Size = UDim2.new(1, 0, 0, 20)
+		local hours = math.floor(Config.TimeOfDayMinutes / 60) % 24
+		local remaining_minutes = Config.TimeOfDayMinutes % 60
+		local minutes = math.floor(remaining_minutes)
+		local seconds = math.floor((remaining_minutes - minutes) * 60)
+		TimeOfDayLabel.Text = "Time of Day: " .. string.format("%02d:%02d:%02d", hours, minutes, seconds)
+		TimeOfDayLabel.BackgroundTransparency = 1
+		TimeOfDayLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+		TimeOfDayLabel.Font = Enum.Font.SourceSans
+		TimeOfDayLabel.TextSize = 14
+		TimeOfDayLabel.Parent = environmentControls
+		local TimeOfDaySlider = Instance.new("Frame")
+		TimeOfDaySlider.Size = UDim2.new(1, 0, 0, 10)
+		TimeOfDaySlider.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
+		TimeOfDaySlider.Parent = environmentControls
+		local TimeOfDaySliderCorner = Instance.new("UICorner")
+		TimeOfDaySliderCorner.CornerRadius = UDim.new(0, 5)
+		TimeOfDaySliderCorner.Parent = TimeOfDaySlider
+		local TimeOfDayFill = Instance.new("Frame")
+		TimeOfDayFill.Size = UDim2.new(Config.TimeOfDayMinutes / 1440, 0, 1, 0)
+		TimeOfDayFill.BackgroundColor3 = Color3.fromRGB(0, 120, 255)
+		TimeOfDayFill.Parent = TimeOfDaySlider
+		local TimeOfDayFillCorner = Instance.new("UICorner")
+		TimeOfDayFillCorner.CornerRadius = UDim.new(0, 5)
+		TimeOfDayFillCorner.Parent = TimeOfDayFill
+		local draggingTimeOfDay
+		TimeOfDaySlider.InputBegan:Connect(function(input)
+			if input.UserInputType == Enum.UserInputType.MouseButton1 then
+				draggingTimeOfDay = true
+			end
+		end)
+		TimeOfDaySlider.InputEnded:Connect(function(input)
+			if input.UserInputType == Enum.UserInputType.MouseButton1 then
+				draggingTimeOfDay = false
+			end
+		end)
+		UserInputService.InputChanged:Connect(function(input)
+			if input.UserInputType == Enum.UserInputType.MouseMovement and draggingTimeOfDay then
+				local sliderPos = math.clamp((input.Position.X - TimeOfDaySlider.AbsolutePosition.X) / TimeOfDaySlider.AbsoluteSize.X, 0, 1)
+				Config.TimeOfDayMinutes = sliderPos * 1440
+				local hours = math.floor(Config.TimeOfDayMinutes / 60) % 24
+				local remaining_minutes = Config.TimeOfDayMinutes % 60
+				local minutes = math.floor(remaining_minutes)
+				local seconds = math.floor((remaining_minutes - minutes) * 60)
+				TimeOfDayLabel.Text = "Time of Day: " .. string.format("%02d:%02d:%02d", hours, minutes, seconds)
+				TimeOfDayFill.Size = UDim2.new(sliderPos, 0, 1, 0)
+				if Config.TimeOfDayEnabled then
+					Lighting.TimeOfDay = string.format("%02d:%02d:%02d", hours, minutes, seconds)
 				end
 			end
 		end)
@@ -1499,7 +1658,7 @@ local function createESP(player)
 			healthBarFill.BackgroundColor3 = Color3.fromHSV(math.clamp(health / humanoid.MaxHealth / 3, 0, 0.33), 1, 1)
 			healthBarFill.BackgroundTransparency = Config.HealthBarTransparency
 		end)
-		-- New: Distance Label
+		-- Distance Label
 		local distanceLabel = Instance.new("TextLabel")
 		distanceLabel.Size = UDim2.new(1, 0, 0, 20)
 		distanceLabel.Position = UDim2.new(0, 0, 0, 20 + Config.HealthBarHeight)
@@ -1720,6 +1879,13 @@ UserInputService.InputBegan:Connect(function(input)
 				humanoid.WalkSpeed = Config.SpeedHackEnabled and Config.SpeedHackValue or 16
 			end
 		end
+	elseif input.KeyCode == Config.InfiniteJumpKey and input.UserInputType == Enum.UserInputType.Keyboard then
+		if Config.InfiniteJumpEnabled and not Config.InfiniteJumpForceDisabled then
+			local humanoid = LocalPlayer.Character and LocalPlayer.Character:FindFirstChildOfClass("Humanoid")
+			if humanoid then
+				humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
+			end
+		end
 	end
 end)
 UserInputService.InputEnded:Connect(function(input)
@@ -1922,6 +2088,14 @@ local function initialize()
 		end
 		createGUI()
 		createFOVCircle()
+		-- Set initial TimeOfDay from config if enabled
+		if Config.TimeOfDayEnabled then
+			local hours = math.floor(Config.TimeOfDayMinutes / 60) % 24
+			local remaining_minutes = Config.TimeOfDayMinutes % 60
+			local minutes = math.floor(remaining_minutes)
+			local seconds = math.floor((remaining_minutes - minutes) * 60)
+			Lighting.TimeOfDay = string.format("%02d:%02d:%02d", hours, minutes, seconds)
+		end
 		print("Initialization completed")
 	end)
 	if not success then
