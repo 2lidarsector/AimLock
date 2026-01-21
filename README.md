@@ -18,6 +18,8 @@ AimLock is code for a universal first person Roblox Lua Aimbot, ESP, Fly and Noc
 - Fly
 - Noclip
 - Speed Hack
+- Time of Day Changer
+- Inf Jump
 
 ### Planned Features
 - Some type of legit aimbot
@@ -34,7 +36,6 @@ AimLock is code for a universal first person Roblox Lua Aimbot, ESP, Fly and Noc
 - Fix LAG/Remove unnecessary code
 - UI Change?
   - Probably never, as its not needed
-- Time of Day changer
 - Safe Cheats Only Mode
 - Whitelist 
   - e.g dont target (aimbot lock) player22 or dont target friends
